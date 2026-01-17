@@ -1,0 +1,22 @@
+[project]
+name = "home-cli"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "trombiano1",email = "trombiano1@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "requests (>=2.32.5,<3.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "home_cli", from = "src"}]
+
+[tool.poetry.scripts]
+home-cli = "home_cli.main:main"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

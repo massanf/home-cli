@@ -1,0 +1,51 @@
+{
+    "all-lights-on": {
+        "description": "All lights are on.",
+        "switchbot": {
+            "globe": "on",
+            "light": "on"
+        },
+        "hue": "on"
+    },
+    "bar-mode": {
+        "description": "Fancy lights for the spotlight.",
+        "switchbot": {
+            "globe": "on",
+            "light": "on"
+        },
+        "hue": "bar"
+    },
+    "globe-mode": {
+        "description": "Globe-centric lighting.",
+        "switchbot": {
+            "globe": "on",
+            "light": "off"
+        },
+        "hue": "dim"
+    },
+    "theatre-mode": {
+        "description": "Best for projector.",
+        "switchbot": {
+            "curtain": "close",
+            "globe": "off",
+            "light": "off"
+        },
+        "hue": "theatre"
+    },
+    "dim": {
+        "description": "Dim.",
+        "switchbot": {
+            "globe": "off",
+            "light": "off"
+        },
+        "hue": "dim"
+    },
+    "all-lights-off": {
+        "description": "All lights are off.",
+        "switchbot": {
+            "globe": "off",
+            "light": "off"
+        },
+        "hue": "off"
+    }
+}

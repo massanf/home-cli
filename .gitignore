@@ -1,0 +1,13 @@
+# Secrets
+secrets.json
+
+# Runtime State
+state.json
+snapshot.json
+
+# Python
+__pycache__/
+*.pyc
+
+# Mac
+.DS_Store
