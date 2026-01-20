@@ -1,0 +1,96 @@
+{
+  "bridge": {
+    "name": "Home CLI Bridge",
+    "username": "CC:22:3D:E3:CE:30",
+    "port": 51827,
+    "pin": "031-45-154"
+  },
+  "accessories": [
+    {
+      "accessory": "HTTP-SWITCH",
+      "name": "Globe Light",
+      "switchType": "stateful",
+      "onUrl": "http://localhost:5001/switchbot/globe/on",
+      "offUrl": "http://localhost:5001/switchbot/globe/off",
+      "statusUrl": "http://localhost:5001/status",
+      "statusPattern": "\"globe\":\"on\"",
+      "pullInterval": 2000
+    },
+    {
+      "accessory": "HTTP-SWITCH",
+      "name": "Edison Lights",
+      "switchType": "stateful",
+      "onUrl": "http://localhost:5001/switchbot/light/on",
+      "offUrl": "http://localhost:5001/switchbot/light/off",
+      "statusUrl": "http://localhost:5001/status",
+      "statusPattern": "\"light\":\"on\"",
+      "pullInterval": 2000
+    },
+    {
+      "accessory": "HTTP-SWITCH",
+      "name": "Curtains",
+      "switchType": "stateful",
+      "onUrl": "http://localhost:5001/switchbot/curtain/open",
+      "offUrl": "http://localhost:5001/switchbot/curtain/close",
+      "statusUrl": "http://localhost:5001/status",
+      "statusPattern": "\"curtain\":\"open\"",
+      "pullInterval": 2000
+    },
+    {
+        "accessory": "HTTP-SWITCH",
+        "name": "Hue Lights",
+        "switchType": "stateful",
+        "onUrl": "http://localhost:5001/hue/on",
+        "offUrl": "http://localhost:5001/hue/off",
+        "statusUrl": "http://localhost:5001/status",
+        "statusPattern": "\"hue\":{\"preset\":\"on\"}",
+        "pullInterval": 2000
+    },
+    {
+        "accessory": "Thermostat",
+        "name": "Living Room AC",
+        "apiroute": "http://localhost:5001/switchbot/ac",
+        "temperatureDisplayUnits": 0,
+        "minTemp": 16,
+        "maxTemp": 30,
+        "pollInterval": 2
+    },
+    {
+      "accessory": "HTTP-SWITCH",
+      "name": "Bar Mode",
+      "switchType": "stateless",
+      "onUrl": "http://localhost:5001/preset/bar-mode"
+    },
+    {
+      "accessory": "HTTP-SWITCH",
+      "name": "Theatre Mode",
+      "switchType": "stateless",
+      "onUrl": "http://localhost:5001/preset/theatre-mode"
+    },
+    {
+      "accessory": "HTTP-SWITCH",
+      "name": "Globe Mode",
+      "switchType": "stateless",
+      "onUrl": "http://localhost:5001/preset/globe-mode"
+    },
+    {
+      "accessory": "HTTP-SWITCH",
+      "name": "Dim",
+      "switchType": "stateless",
+      "onUrl": "http://localhost:5001/preset/dim"
+    },
+    {
+      "accessory": "HTTP-SWITCH",
+      "name": "Full On",
+      "switchType": "stateless",
+      "onUrl": "http://localhost:5001/preset/all-lights-on"
+    },
+    {
+      "accessory": "HTTP-SWITCH",
+      "name": "All Off",
+      "switchType": "stateless",
+      "onUrl": "http://localhost:5001/preset/all-lights-off"
+    }
+  ],
+  "platforms": []
+}

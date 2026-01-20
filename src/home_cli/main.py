@@ -7,170 +7,8 @@ import json
 from .switchbot import SwitchBotCode
 from .hue import HueCode
 from .state_manager import update_device_state, load_snapshot, save_snapshot, update_last_active, get_time_since_last_active
-
-# Global Presets Definition
-# Each preset can define states for any number of devices.
-# If a device is omitted or set to None, it remains unchanged.
-GLOBAL_PRESETS = {}
-
-def load_presets(filepath='presets.json'):
-    global GLOBAL_PRESETS
-    try:
-        with open(filepath, 'r') as f:
-            GLOBAL_PRESETS = json.load(f)
-    except FileNotFoundError:
-        print(f"Warning: {filepath} not found. using empty presets.")
-        GLOBAL_PRESETS = {}
-    except json.JSONDecodeError as e:
-        print(f"Error reading {filepath}: {e}")
-        GLOBAL_PRESETS = {}
-
-def apply_global_preset(name: str):
-    if not GLOBAL_PRESETS:
-        load_presets()
-        
-    # Special Toggle Logic
-    if name == 'off':
-        # Check cooldown
-        elapsed = get_time_since_last_active()
-        if elapsed < 900: # 15 minutes = 900 seconds
-            print(f"Skipping 'off' command: Active for {int(elapsed)}s (Minimum 900s).")
-            return
-
-        print("Turning OFF lights...")
-        # Note: We do NOT save snapshot here. 
-        # Snapshot represents the state "before" turning off.
-        # It should have been saved by the previous commands.
-        
-        # Turn off SwitchBot Lights
-        sb = SwitchBotCode()
-        sb.set_globe(False)
-        update_device_state("switchbot", "globe", "off")
-        sb.set_light(False)
-        update_device_state("switchbot", "light", "off")
-        
-        # Turn off Hue
-        hue = HueCode()
-        hue.apply_preset("off")
-        update_device_state("hue", "preset", "off")
-        return
-
-    if name == 'on':
-        print("Restoring ON state from snapshot...")
-        update_last_active() # Mark as active
-        
-        snapshot = load_snapshot()
-        if not snapshot:
-            print("No snapshot found. Applying default 'on' preset.")
-            # Fallback to normal 'on' preset if defined
-            # If not defined, we might default to hardcoded "morning" or similar
-            if 'on' in GLOBAL_PRESETS:
-                 preset = GLOBAL_PRESETS['on']
-                 # We need to manually apply logic here if we recurse, 
-                 # or just proceed to apply_global_preset('on') logic? 
-                 # Actually, better to just let it fall through if we want 'on' to be a preset?
-                 # But 'on' is special restore logic.
-                 # Let's just apply the preset directly here to avoid loop.
-                 apply_global_preset('on') 
-                 return
-            else:
-                 return # Nothing to do
-        else:
-            # Restore SwitchBot Lights
-            sb = SwitchBotCode()
-            sb_vals = snapshot.get("switchbot", {})
-            
-            if "globe" in sb_vals:
-                state = sb_vals["globe"]
-                print(f"  [Restoring] Globe -> {state}")
-                sb.set_globe(state == "on")
-                update_device_state("switchbot", "globe", state)
-            
-            if "light" in sb_vals:
-                state = sb_vals["light"]
-                print(f"  [Restoring] IR Light -> {state}")
-                sb.set_light(state == "on")
-                update_device_state("switchbot", "light", state)
-                
-            # Restore Hue
-            hue_vals = snapshot.get("hue", {})
-            if "preset" in hue_vals:
-                preset_name = hue_vals["preset"]
-                print(f"  [Restoring] Hue -> {preset_name}")
-                hue = HueCode()
-                hue.apply_preset(preset_name)
-                update_device_state("hue", "preset", preset_name)
-            
-            # After restore, the CURRENT state matches the snapshot.
-            # We don't strictly need to save_snapshot() again, but it doesn't hurt.
-            return
-
-    if name not in GLOBAL_PRESETS:
-        print(f"Error: Preset '{name}' not found.")
-        print("Available presets:", ", ".join(GLOBAL_PRESETS.keys()))
-        return
-
-    print(f"Applying Global Preset: {name}")
-    preset = GLOBAL_PRESETS[name]
-    
-    # 1. Apply SwitchBot Settings
-    if "switchbot" in preset and preset["switchbot"]:
-        sb = SwitchBotCode()
-        sb_config = preset["switchbot"]
-        
-        if "curtain" in sb_config and sb_config["curtain"]:
-            state = sb_config["curtain"]
-            print(f"  [SwitchBot] Curtain -> {state}")
-            sb.set_curtain(state == "open")
-            update_device_state("switchbot", "curtain", state)
-
-        if "globe" in sb_config and sb_config["globe"]:
-             state = sb_config["globe"]
-             print(f"  [SwitchBot] Globe -> {state}")
-             sb.set_globe(state == "on")
-             update_device_state("switchbot", "globe", state)
-             
-        if "light" in sb_config and sb_config["light"]:
-             state = sb_config["light"]
-             print(f"  [SwitchBot] IR Light -> {state}")
-             sb.set_light(state == "on")
-             update_device_state("switchbot", "light", state)
-
-        if "ac" in sb_config and sb_config["ac"]:
-            ac = sb_config["ac"]
-            if not ac.get("on", True):
-                 print(f"  [SwitchBot] AC -> OFF")
-                 sb.set_ac(25, 1, 1, False) # Params don't matter if off, but required by method signature
-                 update_device_state("switchbot", "ac", {"on": False})
-            else:
-                print(f"  [SwitchBot] AC -> {ac}")
-                sb.set_ac(
-                    ac.get("temp", 25),
-                    ac.get("mode", 1),
-                    ac.get("fan", 1),
-                    True
-                )
-                update_device_state("switchbot", "ac", ac)
-
-    # 2. Apply Hue Settings
-    if "hue" in preset and preset["hue"]:
-        hue_preset_name = preset["hue"]
-        print(f"  [Hue] Applying preset -> {hue_preset_name}")
-        hue = HueCode()
-        # For "off", we might strictly want to turn them off if no "off" preset exists in hue.py
-        # But for now let's assume 'off' exists or logic is handled
-        if hue_preset_name == "off":
-             # Special case if we want to force off without a preset definition
-             # But best to add 'off' to hue.py presets
-             hue.apply_preset("off") # Requires 'off' in hue.py PRESETS
-        else:
-             hue.apply_preset(hue_preset_name)
-        
-        update_device_state("hue", "preset", hue_preset_name)
-
-    # Save snapshot after successful application of a normal preset
-    update_last_active()
-    save_snapshot()
+from .server import run_server
+from .presets import apply_global_preset, load_presets, GLOBAL_PRESETS
 
 def main():
     parser = argparse.ArgumentParser(description="Home Automation CLI")
@@ -182,7 +20,7 @@ def main():
     # Strategy: Use subcommands for 'hue' and 'switchbot'. 
     # If the first argument isn't one of them (and isn't -h/--list), assume it's a global preset.
 
-    if len(sys.argv) > 1 and sys.argv[1] in ['hue', 'switchbot']:
+    if len(sys.argv) > 1 and sys.argv[1] in ['hue', 'switchbot', 'server']:
         subparsers = parser.add_subparsers(dest="command", help="Device category", required=True)
 
         # --- HUE ---
@@ -191,6 +29,10 @@ def main():
         hue_parser.add_argument("--list", action="store_true", help="List all lights and current state")
         hue_parser.add_argument("--on", action="store_true", help="Turn all lights on")
         hue_parser.add_argument("--off", action="store_true", help="Turn all lights off")
+
+        # --- SERVER ---
+        server_parser = subparsers.add_parser("server", help="Start the Homebridge API Server")
+        server_parser.add_argument("--port", type=int, default=5001, help="Port to run server on")
 
         # --- SWITCHBOT ---
         sb_parser = subparsers.add_parser("switchbot", help="Control SwitchBot Devices")
@@ -334,7 +176,12 @@ def main():
             
             # Save state after SwitchBot change
             update_last_active()
+            update_last_active()
             save_snapshot()
+
+        elif args.command == "server":
+            print(f"Starting server on port {args.port}...")
+            run_server(args.port)
 
     else:
         # Global Preset Mode
