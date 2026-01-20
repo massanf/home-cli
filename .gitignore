@@ -8,6 +8,15 @@ snapshot.json
 # Python
 __pycache__/
 *.pyc
+*.egg-info/
+dist/
 
 # Mac
 .DS_Store
+
+# Node / Homebridge
+node_modules/
+.npm-cache/
+homebridge/persist/
+homebridge/accessories/
+homebridge/.homebridge.sock

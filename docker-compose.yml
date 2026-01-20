@@ -1,0 +1,21 @@
+services:
+  flask:
+    build: .
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./secrets.json:/app/secrets.json:ro
+      - ./state.json:/app/state.json
+      - ./snapshot.json:/app/snapshot.json
+
+  homebridge:
+    build:
+      context: ./homebridge
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./homebridge/config.json:/config/config.json:ro
+      - homebridge-data:/homebridge-data
+
+volumes:
+  homebridge-data:

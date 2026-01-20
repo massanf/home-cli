@@ -93,5 +93,38 @@ poetry run home-cli switchbot globe on
 poetry run home-cli switchbot curtain close
 ```
 
+## HomeKit Integration 🏠
+
+This project includes a built-in **Flask API Server** and a local **Homebridge** instance to expose all devices to Apple HomeKit.
+
+### Features
+*   **Siri / Home App Control**: Control Hue, SwitchBot, and Scenes from your iPhone or Mac.
+*   **AC Thermostat**: Full thermostat UI for your AC (Heat/Cool/Auto/Temp).
+*   **Preset Buttons**: Trigger your `presets.json` scenes (e.g., "Bar Mode") directly from HomeKit buttons.
+*   **Real-time State**: Two-way sync ensures HomeKit always shows the correct status.
+
+### Setup
+
+1.  **Start the API Server** (Terminal 1):
+    ```bash
+    poetry run home-cli server
+    # Runs on http://localhost:5001
+    ```
+
+2.  **Start Homebridge** (Terminal 2):
+    ```bash
+    ./start_homebridge.sh
+    # Installs dependencies and runs Homebridge on port 51827
+    ```
+
+3.  **Pair with iPhone**:
+    *   Open **Home** App.
+    *   Tap **+** > **Add Accessory**.
+    *   Scan the QR code shown in Terminal 2.
+
+### Troubleshooting
+*   **Port 5001**: The API server uses port 5001 to avoid conflicts with AirPlay (port 5000).
+*   **Responsiveness**: Accessories are polled every 2s for fast updates.
+
 ## Contributing
 This project was built with code generation and agentic AI assistance.

@@ -1,0 +1,13 @@
+{
+  "name": "home-cli-bridge",
+  "version": "1.0.0",
+  "description": "Homebridge instance for home-cli",
+  "scripts": {
+    "start": "homebridge -U . -P ."
+  },
+  "dependencies": {
+    "homebridge": "^1.8.0",
+    "homebridge-http-switch": "^0.5.34",
+    "homebridge-web-thermostat": "^1.4.3"
+  }
+}
