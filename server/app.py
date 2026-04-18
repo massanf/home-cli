@@ -35,19 +35,19 @@ def run_preset(name):
         app.logger.error(f"Error applying preset {name}: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route('/smart/on', methods=['POST'])
-def smart_on():
+@app.route('/presence/enter', methods=['POST'])
+def presence_enter():
     try:
         apply_global_preset('on')
-        return jsonify({"status": "success", "action": "smart_on"})
+        return jsonify({"status": "success", "action": "presence_enter"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/smart/off', methods=['POST'])
-def smart_off():
+@app.route('/presence/leave', methods=['POST'])
+def presence_leave():
     try:
         apply_global_preset('off')
-        return jsonify({"status": "success", "action": "smart_off"})
+        return jsonify({"status": "success", "action": "presence_leave"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

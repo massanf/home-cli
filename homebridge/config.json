@@ -101,20 +101,6 @@
       "httpMethod": "POST",
       "onUrl": "http://localhost:5001/preset/all-lights-off"
     },
-    {
-      "accessory": "HTTP-SWITCH",
-      "name": "Smart Off",
-      "switchType": "stateless",
-      "httpMethod": "POST",
-      "onUrl": "http://localhost:5001/smart/off"
-    },
-    {
-      "accessory": "HTTP-SWITCH",
-      "name": "Restore On",
-      "switchType": "stateless",
-      "httpMethod": "POST",
-      "onUrl": "http://localhost:5001/smart/on"
-    }
   ],
   "platforms": []
 }

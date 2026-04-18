@@ -101,5 +101,5 @@ Open the Home app, tap + > Add Accessory, and enter pin `031-45-154`.
 | POST | `/hue/on` | Hue lights on |
 | POST | `/hue/off` | Hue lights off |
 | POST | `/preset/<name>` | Apply a preset from `config/presets.json` |
-| POST | `/smart/on` | Restore state from last snapshot |
-| POST | `/smart/off` | Turn off all lights |
+| POST | `/presence/enter` | Triggered by GPS arrival or motion detected — restores state from last snapshot |
+| POST | `/presence/leave` | Triggered by GPS departure — saves snapshot and turns off all lights |
