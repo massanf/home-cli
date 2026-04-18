@@ -26,8 +26,8 @@ def apply_global_preset(name: str):
         sb = SwitchBotCode()
         sb.set_globe(False)
         update_device_state("switchbot", "globe", "off")
-        sb.set_light(False)
-        update_device_state("switchbot", "light", "off")
+        sb.set_edison(False)
+        update_device_state("switchbot", "edison", "off")
         hue = HueCode()
         hue.apply_preset("off")
         update_device_state("hue", "preset", "off")
@@ -46,10 +46,10 @@ def apply_global_preset(name: str):
             state = sb_vals["globe"]
             sb.set_globe(state == "on")
             update_device_state("switchbot", "globe", state)
-        if "light" in sb_vals:
+        if "edison" in sb_vals:
             state = sb_vals["light"]
-            sb.set_light(state == "on")
-            update_device_state("switchbot", "light", state)
+            sb.set_edison(state == "on")
+            update_device_state("switchbot", "edison", state)
         hue_vals = snapshot.get("hue", {})
         if "preset" in hue_vals:
             preset_name = hue_vals["preset"]
@@ -75,10 +75,10 @@ def apply_global_preset(name: str):
             state = sb_config["globe"]
             sb.set_globe(state == "on")
             update_device_state("switchbot", "globe", state)
-        if sb_config.get("light"):
-            state = sb_config["light"]
-            sb.set_light(state == "on")
-            update_device_state("switchbot", "light", state)
+        if sb_config.get("edison"):
+            state = sb_config["edison"]
+            sb.set_edison(state == "on")
+            update_device_state("switchbot", "edison", state)
         if sb_config.get("ac"):
             ac = sb_config["ac"]
             if not ac.get("on", True):

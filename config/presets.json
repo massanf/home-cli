@@ -3,7 +3,7 @@
         "description": "All lights are on.",
         "switchbot": {
             "globe": "on",
-            "light": "on"
+            "edison": "on"
         },
         "hue": "on"
     },
@@ -11,7 +11,7 @@
         "description": "Fancy lights for the spotlight.",
         "switchbot": {
             "globe": "on",
-            "light": "on"
+            "edison": "on"
         },
         "hue": "bar"
     },
@@ -19,7 +19,7 @@
         "description": "Globe-centric lighting.",
         "switchbot": {
             "globe": "on",
-            "light": "off"
+            "edison": "off"
         },
         "hue": "dim"
     },
@@ -28,7 +28,7 @@
         "switchbot": {
             "curtain": "close",
             "globe": "off",
-            "light": "off"
+            "edison": "off"
         },
         "hue": "theatre"
     },
@@ -36,7 +36,7 @@
         "description": "Dim.",
         "switchbot": {
             "globe": "off",
-            "light": "off"
+            "edison": "off"
         },
         "hue": "dim"
     },
@@ -44,7 +44,7 @@
         "description": "All lights are off.",
         "switchbot": {
             "globe": "off",
-            "light": "off"
+            "edison": "off"
         },
         "hue": "off"
     }

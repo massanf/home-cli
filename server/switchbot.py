@@ -8,7 +8,7 @@ import requests
 
 DEVICE_ID_GLOBE = '9888E0C6BE2E'
 DEVICE_ID_CURTAIN = 'E50D4BD20F40'
-DEVICE_ID_LIGHT = '02-202511170026-84472226'
+DEVICE_ID_EDISON = '02-202511170026-84472226'
 DEVICE_ID_AC = '02-202508120124-76089867'
 
 class SwitchBotCode:
@@ -54,8 +54,8 @@ class SwitchBotCode:
     def set_curtain(self, open: bool):
         return self.send_command(DEVICE_ID_CURTAIN, "turnOn" if open else "turnOff")
 
-    def set_light(self, on: bool):
-        return self.send_command(DEVICE_ID_LIGHT, "turnOn" if on else "turnOff")
+    def set_edison(self, on: bool):
+        return self.send_command(DEVICE_ID_EDISON, "turnOn" if on else "turnOff")
 
     def set_ac(self, temperature: int, mode: int, fan_speed: int, on: bool):
         power_state = "on" if on else "off"

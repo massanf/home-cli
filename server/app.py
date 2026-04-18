@@ -17,7 +17,7 @@ def get_status():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/preset/<name>', methods=['GET', 'POST'])
+@app.route('/preset/<name>', methods=['POST'])
 def run_preset(name):
     try:
         apply_global_preset(name)
@@ -26,7 +26,7 @@ def run_preset(name):
         app.logger.error(f"Error applying preset {name}: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route('/smart/on', methods=['GET'])
+@app.route('/smart/on', methods=['POST'])
 def smart_on():
     try:
         apply_global_preset('on')
@@ -34,7 +34,7 @@ def smart_on():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/smart/off', methods=['GET'])
+@app.route('/smart/off', methods=['POST'])
 def smart_off():
     try:
         apply_global_preset('off')
@@ -42,7 +42,7 @@ def smart_off():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/hue/on', methods=['GET'])
+@app.route('/hue/on', methods=['POST'])
 def hue_on():
     try:
         HueCode().apply_preset('on')
@@ -51,7 +51,7 @@ def hue_on():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/hue/off', methods=['GET'])
+@app.route('/hue/off', methods=['POST'])
 def hue_off():
     try:
         HueCode().apply_preset('off')
@@ -60,7 +60,7 @@ def hue_off():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/switchbot/globe/<state>', methods=['GET'])
+@app.route('/switchbot/globe/<state>', methods=['POST'])
 def switchbot_globe(state):
     if state not in ['on', 'off']:
         return jsonify({"error": "Invalid state"}), 400
@@ -71,7 +71,7 @@ def switchbot_globe(state):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/switchbot/curtain/<state>', methods=['GET'])
+@app.route('/switchbot/curtain/<state>', methods=['POST'])
 def switchbot_curtain(state):
     if state not in ['open', 'close']:
         return jsonify({"error": "Invalid state, use open/close"}), 400
@@ -82,14 +82,14 @@ def switchbot_curtain(state):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/switchbot/light/<state>', methods=['GET'])
-def switchbot_light(state):
+@app.route('/switchbot/edison/<state>', methods=['POST'])
+def switchbot_edison(state):
     if state not in ['on', 'off']:
         return jsonify({"error": "Invalid state"}), 400
     try:
-        SwitchBotCode().set_light(state == 'on')
-        update_device_state("switchbot", "light", state)
-        return jsonify({"status": "success", "device": "light", "state": state})
+        SwitchBotCode().set_edison(state == 'on')
+        update_device_state("switchbot", "edison", state)
+        return jsonify({"status": "success", "device": "edison", "state": state})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
