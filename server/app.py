@@ -1,8 +1,10 @@
+import json
 import logging
 
-from flask import Flask, jsonify, request
+from flask import Flask, Response, jsonify, request, stream_with_context
 
 from .hue import HueCode
+from .logger import get_logs, subscribe, unsubscribe
 from .presets import apply_global_preset, load_presets
 from .state import get_device_state, load_state, update_device_state
 from .switchbot import SwitchBotCode
@@ -18,6 +20,77 @@ def switchbot_devices():
         return jsonify(SwitchBotCode().get_devices())
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/logs', methods=['GET'])
+def logs():
+    entries = get_logs()
+    rows = ""
+    for e in entries:
+        status_color = "green" if e["status"] == 200 else "red"
+        rows += f"""
+        <tr>
+            <td>{e["time"]}</td>
+            <td>{e["method"]}</td>
+            <td style="word-break:break-all">{e["url"]}</td>
+            <td style="color:{status_color}">{e["status"]}</td>
+            <td><pre>{e["payload"] or ""}</pre></td>
+            <td><pre>{e["response"] or ""}</pre></td>
+        </tr>"""
+    html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <title>home-server logs</title>
+    <style>
+        body {{ font-family: monospace; padding: 1rem; }}
+        table {{ border-collapse: collapse; width: 100%; font-size: 0.85rem; }}
+        th, td {{ border: 1px solid #ccc; padding: 0.4rem 0.6rem;
+                  vertical-align: top; }}
+        th {{ background: #f0f0f0; }}
+        pre {{ margin: 0; white-space: pre-wrap; }}
+    </style>
+</head>
+<body>
+    <h2>Outgoing requests (live)</h2>
+    <table id="log-table">
+        <tr>
+            <th>Time</th><th>Method</th><th>URL</th>
+            <th>Status</th><th>Payload</th><th>Response</th>
+        </tr>
+        {rows}
+    </table>
+    <script>
+        const table = document.getElementById('log-table');
+        const es = new EventSource('/logs/stream');
+        es.onmessage = e => {{
+            const d = JSON.parse(e.data);
+            const color = d.status === 200 ? 'green' : 'red';
+            const row = `<tr>
+                <td>${{d.time}}</td>
+                <td>${{d.method}}</td>
+                <td style="word-break:break-all">${{d.url}}</td>
+                <td style="color:${{color}}">${{d.status}}</td>
+                <td><pre>${{JSON.stringify(d.payload, null, 2) || ''}}</pre></td>
+                <td><pre>${{JSON.stringify(d.response, null, 2) || ''}}</pre></td>
+            </tr>`;
+            table.querySelector('tr:last-child').insertAdjacentHTML('afterend', row);
+        }};
+    </script>
+</body>
+</html>"""
+    return html
+
+@app.route('/logs/stream', methods=['GET'])
+def logs_stream():
+    def generate():
+        q = subscribe()
+        try:
+            while True:
+                entry = q.get()
+                yield f"data: {json.dumps(entry)}\n\n"
+        finally:
+            unsubscribe(q)
+    return Response(stream_with_context(generate()),
+                    mimetype='text/event-stream')
 
 @app.route('/status', methods=['GET'])
 def get_status():
@@ -170,4 +243,4 @@ def set_ac_mode():
         return jsonify({"error": str(e)}), 500
 
 def run(port=5001):
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, threaded=True)

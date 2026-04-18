@@ -2,6 +2,8 @@ import json
 
 import requests
 
+from .logger import log_request
+
 PRESETS = {
     'on': {'hue': 7894, 'sat': 185, 'bri': 255, 'on': True},
     'off': {'hue': 1000, 'sat': 100, 'bri': 0, 'on': False},
@@ -24,8 +26,12 @@ class HueCode:
         self.base_url = f"http://{self.bridge_ip}/api/{self.username}"
 
     def get_lights(self):
+        url = f"{self.base_url}/lights"
         try:
-            return requests.get(f"{self.base_url}/lights").json()
+            response = requests.get(url)
+            resp_json = response.json()
+            log_request("GET", url, status=response.status_code)
+            return resp_json
         except requests.RequestException as e:
             print(f"Error getting lights: {e}")
             return {}
@@ -45,7 +51,10 @@ class HueCode:
         if not payload:
             return
         try:
-            return requests.put(url, json=payload).json()
+            response = requests.put(url, json=payload)
+            resp_json = response.json()
+            log_request("PUT", url, payload=payload, status=response.status_code)
+            return resp_json
         except requests.RequestException as e:
             print(f"Error setting light {light_id}: {e}")
 

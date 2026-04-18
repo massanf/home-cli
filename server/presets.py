@@ -23,6 +23,7 @@ def apply_global_preset(name: str):
         load_presets()
 
     if name == 'off':
+        save_snapshot()
         print("Turning OFF lights...")
         sb = SwitchBotCode()
         sb.set_globe(False)
