@@ -1,9 +1,11 @@
-from flask import Flask, jsonify, request
 import logging
+
+from flask import Flask, jsonify, request
+
 from .hue import HueCode
-from .switchbot import SwitchBotCode
-from .state import load_state, get_device_state, update_device_state
 from .presets import apply_global_preset, load_presets
+from .state import get_device_state, load_state, update_device_state
+from .switchbot import SwitchBotCode
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -109,9 +111,12 @@ def get_ac_status():
         target_temp = float(current_ac_state.get("temp", 25))
         hk_state = 0
         if is_on:
-            if sb_mode == 2: hk_state = 2
-            elif sb_mode == 5: hk_state = 1
-            else: hk_state = 3
+            if sb_mode == 2:
+                hk_state = 2
+            elif sb_mode == 5:
+                hk_state = 1
+            else:
+                hk_state = 3
         return jsonify({
             "targetHeatingCoolingState": hk_state,
             "currentHeatingCoolingState": hk_state,
@@ -158,7 +163,8 @@ def set_ac_mode():
             return jsonify({"status": "success", "targetHeatingCoolingState": 0})
         sb_mode = {1: 5, 2: 2, 3: 1}.get(mode, 1)
         SwitchBotCode().set_ac(target_temp, sb_mode, target_fan, True)
-        update_device_state("switchbot", "ac", {**current_ac_state, "on": True, "mode": sb_mode})
+        new_state = {**current_ac_state, "on": True, "mode": sb_mode}
+        update_device_state("switchbot", "ac", new_state)
         return jsonify({"status": "success", "targetHeatingCoolingState": mode})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

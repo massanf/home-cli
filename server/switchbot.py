@@ -1,9 +1,10 @@
-import json
-import time
+import base64
 import hashlib
 import hmac
-import base64
+import json
+import time
 import uuid
+
 import requests
 
 DEVICE_ID_GLOBE = '9888E0C6BE2E'
@@ -39,7 +40,8 @@ class SwitchBotCode:
         response = requests.get(f"{self.base_url}/devices", headers=self._get_headers())
         return response.json()
 
-    def send_command(self, device_id, command, parameter='default', command_type='command'):
+    def send_command(self, device_id, command,
+                     parameter='default', command_type='command'):
         url = f"{self.base_url}/devices/{device_id}/commands"
         payload = {
             "command": command,

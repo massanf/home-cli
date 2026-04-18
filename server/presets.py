@@ -1,7 +1,8 @@
 import json
-from .switchbot import SwitchBotCode
+
 from .hue import HueCode
-from .state import update_device_state, load_snapshot, save_snapshot, update_last_active
+from .state import load_snapshot, save_snapshot, update_device_state, update_last_active
+from .switchbot import SwitchBotCode
 
 GLOBAL_PRESETS = {}
 
@@ -58,7 +59,8 @@ def apply_global_preset(name: str):
         return
 
     if name not in GLOBAL_PRESETS:
-        print(f"Error: Preset '{name}' not found. Available: {', '.join(GLOBAL_PRESETS.keys())}")
+        available = ', '.join(GLOBAL_PRESETS.keys())
+        print(f"Error: Preset '{name}' not found. Available: {available}")
         return
 
     print(f"Applying preset: {name}")

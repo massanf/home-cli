@@ -1,4 +1,5 @@
 import json
+
 import requests
 
 PRESETS = {
@@ -29,13 +30,18 @@ class HueCode:
             print(f"Error getting lights: {e}")
             return {}
 
-    def set_light(self, light_id: int, on: bool = None, bri: int = None, hue: int = None, sat: int = None, **kwargs):
+    def set_light(self, light_id: int, on: bool = None, bri: int = None,
+                  hue: int = None, sat: int = None, **kwargs):
         url = f"{self.base_url}/lights/{light_id}/state"
         payload = {}
-        if on is not None: payload['on'] = on
-        if bri is not None: payload['bri'] = bri
-        if hue is not None: payload['hue'] = hue
-        if sat is not None: payload['sat'] = sat
+        if on is not None:
+            payload['on'] = on
+        if bri is not None:
+            payload['bri'] = bri
+        if hue is not None:
+            payload['hue'] = hue
+        if sat is not None:
+            payload['sat'] = sat
         if not payload:
             return
         try:
