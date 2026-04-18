@@ -8,6 +8,7 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry install --no-root --no-cache
 
 COPY src/ src/
+COPY README.md ./
 RUN poetry install --no-cache
 
 COPY presets.json ./

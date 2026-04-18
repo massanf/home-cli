@@ -24,7 +24,11 @@ def apply_global_preset(name: str):
         
     # Special Toggle Logic
     if name == 'off':
-
+        # Check cooldown
+        elapsed = get_time_since_last_active()
+        if elapsed < 900: # 15 minutes = 900 seconds
+            print(f"Skipping 'off' command: Active for {int(elapsed)}s (Minimum 900s).")
+            return
 
         print("Turning OFF lights...")
         # Note: We do NOT save snapshot here. 
