@@ -2,7 +2,7 @@ import json
 import os
 import time
 
-STATE_FILE = 'state.json'
+STATE_FILE = '/app/data/state.json'
 
 def load_state():
     try:
@@ -40,7 +40,7 @@ def get_device_state(category, device):
     state = load_state()
     return state.get(category, {}).get(device)
 
-SNAPSHOT_FILE = 'snapshot.json'
+SNAPSHOT_FILE = '/app/data/snapshot.json'
 
 def save_snapshot():
     """Saves the current state to a snapshot file."""

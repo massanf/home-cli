@@ -5,8 +5,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./secrets.json:/app/secrets.json:ro
-      - ./state.json:/app/state.json
-      - ./snapshot.json:/app/snapshot.json
+      - flask-data:/app/data
 
   homebridge:
     build:
@@ -19,3 +18,4 @@ services:
 
 volumes:
   homebridge-data:
+  flask-data:
