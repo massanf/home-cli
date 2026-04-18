@@ -2,6 +2,54 @@
 
 Flask server for controlling SwitchBot and Philips Hue devices, exposed to HomeKit via Homebridge.
 
+```mermaid
+graph TD
+    iPhone[iPhone / HomePod]
+
+    subgraph Pi [Raspberry Pi]
+        subgraph Docker [Docker Compose]
+            subgraph HBContainer [homebridge container]
+                HB[Homebridge :51827]
+                Plugin[http-switch / web-thermostat plugins]
+                HB --- Plugin
+            end
+
+            subgraph FlaskContainer [flask container]
+                Flask[Flask :5001]
+                ServerPkg[server package]
+                Flask --- ServerPkg
+            end
+        end
+
+        State[flask-data volume]
+        Secrets[secrets.json]
+
+        Plugin -->|HTTP POST| Flask
+        FlaskContainer -->|read/write| State
+        FlaskContainer -->|read-only| Secrets
+    end
+
+    subgraph Clients
+        SB[SwitchBot Cloud API]
+        Hue[Hue Bridge]
+        Globe[Globe 🌏]
+        Edison[Edison Lights 💡]
+        Curtain[Curtains 🪟]
+        AC[Air Conditioner ❄️]
+        HueLights[Hue Lights 💡]
+
+        SB --> Globe
+        SB --> Edison
+        SB --> Curtain
+        SB --> AC
+        Hue --> HueLights
+    end
+
+    iPhone -->|HomeKit mDNS| HB
+    ServerPkg -->|HTTPS| SB
+    ServerPkg -->|HTTP| Hue
+```
+
 ## Requirements
 
 - Docker
