@@ -7,7 +7,7 @@ from .hue import HueCode
 from .logger import get_logs, subscribe, unsubscribe
 from .presence import on_enter, on_leave
 from .presets import apply_preset, load_presets
-from .scheduler import get_schedules
+from .scheduler import get_schedules, reload_schedules
 from .scheduler import start as start_scheduler
 from .state import get_device_state, load_state, save_snapshot, update_device_state
 from .switchbot import SwitchBotCode
@@ -129,8 +129,77 @@ def logs_stream():
                     mimetype='text/event-stream')
 
 @app.route('/schedules', methods=['GET'])
-def schedules():
+def schedules_ui():
+    html = """<!DOCTYPE html>
+<html>
+<head>
+    <title>Schedules</title>
+    <style>
+        body { font-family: monospace; padding: 1rem; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; }
+        th { background: #f0f0f0; }
+        input { width: 100%; box-sizing: border-box; font-family: monospace; }
+        button { margin-top: 1rem; margin-right: 0.5rem; padding: 0.4rem 1rem; }
+        #status { margin-top: 0.5rem; color: green; }
+    </style>
+</head>
+<body>
+    <h2>Schedules</h2>
+    <table id="table">
+        <tr><th>ID</th><th>Cron</th><th>Action</th><th></th></tr>
+    </table>
+    <button onclick="addRow()">+ Add</button>
+    <button onclick="save()">Save</button>
+    <div id="status"></div>
+    <script>
+        async function load() {
+            const res = await fetch('/schedules/data');
+            const data = await res.json();
+            data.forEach(s => addRow(s.id, s.cron, s.action));
+        }
+        function addRow(id='', cron='', action='') {
+            const table = document.getElementById('table');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input value="${id}"></td>
+                <td><input value="${cron}"></td>
+                <td><input value="${action}"></td>
+                <td><button onclick="this.closest('tr').remove()">x</button></td>`;
+            table.appendChild(tr);
+        }
+        async function save() {
+            const rows = document.querySelectorAll('#table tr:not(:first-child)');
+            const data = [...rows].map(tr => {
+                const [id, cron, action] = tr.querySelectorAll('input');
+                return { id: id.value, cron: cron.value, action: action.value };
+            });
+            const res = await fetch('/schedules/data', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            const status = document.getElementById('status');
+            status.textContent = res.ok ? 'Saved and reloaded.' : 'Error saving.';
+            status.style.color = res.ok ? 'green' : 'red';
+        }
+        load();
+    </script>
+</body>
+</html>"""
+    return html
+
+@app.route('/schedules/data', methods=['GET'])
+def schedules_data():
     return jsonify(get_schedules())
+
+@app.route('/schedules/data', methods=['PUT'])
+def schedules_save():
+    data = request.get_json()
+    with open('config/schedules.json', 'w') as f:
+        json.dump(data, f, indent=2)
+    reload_schedules()
+    return jsonify({"status": "success"})
 
 @app.route('/status', methods=['GET'])
 def get_status():

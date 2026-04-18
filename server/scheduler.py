@@ -41,12 +41,14 @@ def _resolve_action(action: str):
     raise ValueError(f"Unknown action: {action}")
 
 def load_schedules(filepath="config/schedules.json"):
+    global _raw_schedules
     try:
         with open(filepath) as f:
             schedules = json.load(f)
     except FileNotFoundError:
         print(f"Warning: {filepath} not found. No schedules loaded.")
         return
+    _raw_schedules = schedules
     for s in schedules:
         scheduler.add_job(
             _resolve_action(s["action"]),
@@ -56,17 +58,15 @@ def load_schedules(filepath="config/schedules.json"):
         )
         print(f"Scheduled: {s['id']} ({s['cron']}) -> {s['action']}")
 
+_raw_schedules = []
+
 def get_schedules():
-    return [
-        {
-            "id": job.id,
-            "next_run": (
-                job.next_run_time.isoformat() if job.next_run_time else None
-            ),
-            "trigger": str(job.trigger),
-        }
-        for job in scheduler.get_jobs()
-    ]
+    return _raw_schedules
+
+def reload_schedules():
+    for job in scheduler.get_jobs():
+        job.remove()
+    load_schedules()
 
 def start():
     load_schedules()
