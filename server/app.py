@@ -9,7 +9,7 @@ from .presence import on_enter, on_leave
 from .presets import apply_preset, load_presets
 from .scheduler import get_schedules
 from .scheduler import start as start_scheduler
-from .state import get_device_state, load_state, update_device_state
+from .state import get_device_state, load_state, save_snapshot, update_device_state
 from .switchbot import SwitchBotCode
 
 app = Flask(__name__)
@@ -169,6 +169,7 @@ def hue_on():
     try:
         HueCode().apply_preset('on')
         update_device_state("hue", "preset", "on")
+        save_snapshot()
         return jsonify({"status": "success", "action": "hue_on"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -178,6 +179,7 @@ def hue_off():
     try:
         HueCode().apply_preset('off')
         update_device_state("hue", "preset", "off")
+        save_snapshot()
         return jsonify({"status": "success", "action": "hue_off"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -189,6 +191,7 @@ def switchbot_globe(state):
     try:
         SwitchBotCode().set_globe(state == 'on')
         update_device_state("switchbot", "globe", state)
+        save_snapshot()
         return jsonify({"status": "success", "device": "globe", "state": state})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -200,6 +203,7 @@ def switchbot_curtain(state):
     try:
         SwitchBotCode().set_curtain(state == 'open')
         update_device_state("switchbot", "curtain", state)
+        save_snapshot()
         return jsonify({"status": "success", "device": "curtain", "state": state})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -211,6 +215,7 @@ def switchbot_edison(state):
     try:
         SwitchBotCode().set_edison(state == 'on')
         update_device_state("switchbot", "edison", state)
+        save_snapshot()
         return jsonify({"status": "success", "device": "edison", "state": state})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
