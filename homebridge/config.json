@@ -90,6 +90,7 @@
       "name": "All Off",
       "switchType": "stateless",
       "onUrl": "http://localhost:5001/preset/all-lights-off"
+<<<<<<< HEAD
     },
     {
       "accessory": "HTTP-SWITCH",
@@ -102,6 +103,8 @@
       "name": "Restore On",
       "switchType": "stateless",
       "onUrl": "http://localhost:5001/smart/on"
+=======
+>>>>>>> 3855825af3239160307a9d2e8d0a571738c3a5aa
     }
   ],
   "platforms": []
