@@ -10,6 +10,13 @@ logging.basicConfig(level=logging.INFO)
 
 load_presets()
 
+@app.route('/switchbot/devices', methods=['GET'])
+def switchbot_devices():
+    try:
+        return jsonify(SwitchBotCode().get_devices())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/status', methods=['GET'])
 def get_status():
     try:

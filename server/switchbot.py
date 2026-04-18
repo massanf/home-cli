@@ -35,6 +35,10 @@ class SwitchBotCode:
             'Content-Type': 'application/json; charset=utf8'
         }
 
+    def get_devices(self):
+        response = requests.get(f"{self.base_url}/devices", headers=self._get_headers())
+        return response.json()
+
     def send_command(self, device_id, command, parameter='default', command_type='command'):
         url = f"{self.base_url}/devices/{device_id}/commands"
         payload = {
