@@ -48,7 +48,7 @@ def apply_global_preset(name: str):
             sb.set_globe(state == "on")
             update_device_state("switchbot", "globe", state)
         if "edison" in sb_vals:
-            state = sb_vals["light"]
+            state = sb_vals["edison"]
             sb.set_edison(state == "on")
             update_device_state("switchbot", "edison", state)
         hue_vals = snapshot.get("hue", {})
