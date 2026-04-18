@@ -267,13 +267,22 @@ def switchbot_globe(state):
 
 @app.route('/switchbot/curtain/<state>', methods=['POST'])
 def switchbot_curtain(state):
-    if state not in ['open', 'close']:
-        return jsonify({"error": "Invalid state, use open/close"}), 400
+    if state not in ['open', 'close', 'quietopen', 'quietclose']:
+        return jsonify({"error": "Invalid state, use open/close/quietopen/quietclose"}), 400  # noqa: E501
     try:
-        SwitchBotCode().set_curtain(state == 'open')
-        update_device_state("switchbot", "curtain", state)
+        sb = SwitchBotCode()
+        if state == 'quietopen':
+            sb.set_curtain_quiet(True)
+            canonical = 'open'
+        elif state == 'quietclose':
+            sb.set_curtain_quiet(False)
+            canonical = 'close'
+        else:
+            sb.set_curtain(state == 'open')
+            canonical = state
+        update_device_state("switchbot", "curtain", canonical)
         save_snapshot()
-        return jsonify({"status": "success", "device": "curtain", "state": state})
+        return jsonify({"status": "success", "device": "curtain", "state": canonical})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
