@@ -69,7 +69,7 @@ class SwitchBotCode:
 
     def set_curtain_quiet(self, open: bool):
         position = 0 if open else 100
-        return self.send_command(DEVICE_ID_CURTAIN, "setPosition", f"{position},ff,1")
+        return self.send_command(DEVICE_ID_CURTAIN, "setPosition", f"0,1,{position}")
 
     def set_edison(self, on: bool):
         return self.send_command(DEVICE_ID_EDISON, "turnOn" if on else "turnOff")
