@@ -3,29 +3,40 @@ import json
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from .presence import on_enter, on_leave
+from .hue import HueCode
 from .presets import apply_preset
 from .state import update_device_state
 from .switchbot import SwitchBotCode
 
 scheduler = BackgroundScheduler()
 
-ACTIONS = {
-    "presence:enter": on_enter,
-    "presence:leave": on_leave,
-}
-
 def _resolve_action(action: str):
-    if action in ACTIONS:
-        return ACTIONS[action]
     if action.startswith("preset:"):
         name = action.split(":", 1)[1]
         return lambda: apply_preset(name)
+    if action.startswith("switchbot:globe:"):
+        state = action.split(":")[-1]
+        return lambda: (
+            SwitchBotCode().set_globe(state == "on"),
+            update_device_state("switchbot", "globe", state),
+        )
+    if action.startswith("switchbot:edison:"):
+        state = action.split(":")[-1]
+        return lambda: (
+            SwitchBotCode().set_edison(state == "on"),
+            update_device_state("switchbot", "edison", state),
+        )
     if action.startswith("switchbot:curtain:"):
         state = action.split(":")[-1]
         return lambda: (
             SwitchBotCode().set_curtain(state == "open"),
             update_device_state("switchbot", "curtain", state),
+        )
+    if action.startswith("hue:"):
+        preset = action.split(":", 1)[1]
+        return lambda: (
+            HueCode().apply_preset(preset),
+            update_device_state("hue", "preset", preset),
         )
     raise ValueError(f"Unknown action: {action}")
 
