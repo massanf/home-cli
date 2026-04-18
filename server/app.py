@@ -5,7 +5,8 @@ from flask import Flask, Response, jsonify, request, stream_with_context
 
 from .hue import HueCode
 from .logger import get_logs, subscribe, unsubscribe
-from .presets import apply_global_preset, load_presets
+from .presence import on_enter, on_leave
+from .presets import apply_preset, load_presets
 from .state import get_device_state, load_state, update_device_state
 from .switchbot import SwitchBotCode
 
@@ -102,7 +103,7 @@ def get_status():
 @app.route('/preset/<name>', methods=['POST'])
 def run_preset(name):
     try:
-        apply_global_preset(name)
+        apply_preset(name)
         return jsonify({"status": "success", "preset": name})
     except Exception as e:
         app.logger.error(f"Error applying preset {name}: {e}")
@@ -111,7 +112,7 @@ def run_preset(name):
 @app.route('/presence/enter', methods=['POST'])
 def presence_enter():
     try:
-        apply_global_preset('on')
+        on_enter()
         return jsonify({"status": "success", "action": "presence_enter"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -119,7 +120,7 @@ def presence_enter():
 @app.route('/presence/leave', methods=['POST'])
 def presence_leave():
     try:
-        apply_global_preset('off')
+        on_leave()
         return jsonify({"status": "success", "action": "presence_leave"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

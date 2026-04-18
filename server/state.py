@@ -32,11 +32,12 @@ def get_device_state(category, device):
     state = load_state()
     return state.get(category, {}).get(device)
 
-def save_snapshot():
-    state = load_state()
+def save_snapshot(data=None):
+    if data is None:
+        data = load_state()
     try:
         with open(SNAPSHOT_FILE, 'w') as f:
-            json.dump(state, f, indent=4)
+            json.dump(data, f, indent=4)
         print("State snapshot saved.")
     except Exception as e:
         print(f"Error saving snapshot: {e}")

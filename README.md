@@ -1,6 +1,6 @@
 # home
 
-Flask server for controlling SwitchBot and Philips Hue devices, exposed to HomeKit via Homebridge.
+Flask server for controlling smart home devices, exposed to HomeKit via Homebridge.
 
 ```mermaid
 graph TD

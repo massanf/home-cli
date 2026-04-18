@@ -1,7 +1,7 @@
 import json
 
 from .hue import HueCode
-from .state import load_snapshot, save_snapshot, update_device_state, update_last_active
+from .state import update_device_state
 from .switchbot import SwitchBotCode
 
 GLOBAL_PRESETS = {}
@@ -18,46 +18,9 @@ def load_presets(filepath='config/presets.json'):
         print(f"Error reading {filepath}: {e}")
         GLOBAL_PRESETS = {}
 
-def apply_global_preset(name: str):
+def apply_preset(name: str):
     if not GLOBAL_PRESETS:
         load_presets()
-
-    if name == 'off':
-        save_snapshot()
-        print("Turning OFF lights...")
-        sb = SwitchBotCode()
-        sb.set_globe(False)
-        update_device_state("switchbot", "globe", "off")
-        sb.set_edison(False)
-        update_device_state("switchbot", "edison", "off")
-        hue = HueCode()
-        hue.apply_preset("off")
-        update_device_state("hue", "preset", "off")
-        return
-
-    if name == 'on':
-        print("Restoring ON state from snapshot...")
-        update_last_active()
-        snapshot = load_snapshot()
-        if not snapshot:
-            print("No snapshot found.")
-            return
-        sb = SwitchBotCode()
-        sb_vals = snapshot.get("switchbot", {})
-        if "globe" in sb_vals:
-            state = sb_vals["globe"]
-            sb.set_globe(state == "on")
-            update_device_state("switchbot", "globe", state)
-        if "edison" in sb_vals:
-            state = sb_vals["edison"]
-            sb.set_edison(state == "on")
-            update_device_state("switchbot", "edison", state)
-        hue_vals = snapshot.get("hue", {})
-        if "preset" in hue_vals:
-            preset_name = hue_vals["preset"]
-            HueCode().apply_preset(preset_name)
-            update_device_state("hue", "preset", preset_name)
-        return
 
     if name not in GLOBAL_PRESETS:
         available = ', '.join(GLOBAL_PRESETS.keys())
@@ -95,6 +58,3 @@ def apply_global_preset(name: str):
         hue_preset_name = preset["hue"]
         HueCode().apply_preset(hue_preset_name)
         update_device_state("hue", "preset", hue_preset_name)
-
-    update_last_active()
-    save_snapshot()
