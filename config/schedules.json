@@ -1,0 +1,7 @@
+[
+  {
+    "id": "open-curtains",
+    "cron": "0 7 * * *",
+    "action": "switchbot:curtain:open"
+  }
+]

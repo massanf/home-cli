@@ -7,6 +7,8 @@ from .hue import HueCode
 from .logger import get_logs, subscribe, unsubscribe
 from .presence import on_enter, on_leave
 from .presets import apply_preset, load_presets
+from .scheduler import get_schedules
+from .scheduler import start as start_scheduler
 from .state import get_device_state, load_state, update_device_state
 from .switchbot import SwitchBotCode
 
@@ -14,6 +16,7 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
 load_presets()
+start_scheduler()
 
 @app.route('/', methods=['GET'])
 def api_docs():
@@ -124,6 +127,10 @@ def logs_stream():
             unsubscribe(q)
     return Response(stream_with_context(generate()),
                     mimetype='text/event-stream')
+
+@app.route('/schedules', methods=['GET'])
+def schedules():
+    return jsonify(get_schedules())
 
 @app.route('/status', methods=['GET'])
 def get_status():

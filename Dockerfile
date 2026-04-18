@@ -9,6 +9,7 @@ RUN poetry install --no-root --no-cache
 
 COPY server/ server/
 COPY config/ config/
+
 RUN poetry install --no-cache
 
 COPY entrypoint.sh ./
