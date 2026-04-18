@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./secrets.json:/app/secrets.json:ro
+      - ./config/schedules.json:/app/config/schedules.json
       - flask-data:/app/data
 
   homebridge:
