@@ -1,11 +1,10 @@
 [project]
-name = "home-cli"
+name = "home-server"
 version = "0.1.0"
 description = ""
 authors = [
     {name = "trombiano1",email = "trombiano1@gmail.com"}
 ]
-readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "requests (>=2.32.5,<3.0.0)",
@@ -13,10 +12,10 @@ dependencies = [
 ]
 
 [tool.poetry]
-packages = [{include = "home_cli", from = "src"}]
+packages = [{include = "server"}]
 
 [tool.poetry.scripts]
-home-cli = "home_cli.main:main"
+home-server = "server.app:run"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

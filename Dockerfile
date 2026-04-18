@@ -7,11 +7,10 @@ RUN pip install poetry --no-cache-dir
 COPY pyproject.toml poetry.lock ./
 RUN poetry install --no-root --no-cache
 
-COPY src/ src/
-COPY README.md ./
+COPY server/ server/
+COPY config/ config/
 RUN poetry install --no-cache
 
-COPY presets.json ./
 COPY entrypoint.sh ./
 RUN chmod +x entrypoint.sh
 

@@ -2,8 +2,7 @@
 secrets.json
 
 # Runtime State
-state.json
-snapshot.json
+data/
 
 # Python
 __pycache__/

@@ -2,7 +2,8 @@ import json
 import os
 import time
 
-STATE_FILE = '/app/data/state.json'
+STATE_FILE = 'data/state.json'
+SNAPSHOT_FILE = 'data/snapshot.json'
 
 def load_state():
     try:
@@ -21,29 +22,17 @@ def save_state(state):
         print(f"Error saving state: {e}")
 
 def update_device_state(category, device, value):
-    """
-    Updates a specific device's state.
-    category: 'switchbot' or 'hue'
-    device: 'ac', 'curtain', 'globe', 'light', or 'preset' (for hue)
-    value: The new state value (dict or string)
-    """
     current_state = load_state()
-    
     if category not in current_state:
         current_state[category] = {}
-        
     current_state[category][device] = value
-    
     save_state(current_state)
 
 def get_device_state(category, device):
     state = load_state()
     return state.get(category, {}).get(device)
 
-SNAPSHOT_FILE = '/app/data/snapshot.json'
-
 def save_snapshot():
-    """Saves the current state to a snapshot file."""
     state = load_state()
     try:
         with open(SNAPSHOT_FILE, 'w') as f:
@@ -53,7 +42,6 @@ def save_snapshot():
         print(f"Error saving snapshot: {e}")
 
 def load_snapshot():
-    """Loads the state from the snapshot file."""
     try:
         if os.path.exists(SNAPSHOT_FILE):
             with open(SNAPSHOT_FILE, 'r') as f:
@@ -63,13 +51,11 @@ def load_snapshot():
     return {}
 
 def update_last_active():
-    """Updates the last_active_timestamp in state.json to current time."""
     state = load_state()
     state['last_active_timestamp'] = time.time()
     save_state(state)
 
 def get_time_since_last_active():
-    """Returns seconds since last active timestamp. Returns infinity if not set."""
     state = load_state()
     last_ts = state.get('last_active_timestamp')
     if last_ts is None:
