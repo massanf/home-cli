@@ -7,4 +7,6 @@ RUN npm install -g --unsafe-perm \
 
 RUN mkdir -p /homebridge-data
 
-CMD ["homebridge", "-U", "/homebridge-data", "--config", "/config/config.json"]
+COPY config.json /homebridge-data/config.json
+
+CMD ["homebridge", "-U", "/homebridge-data"]
