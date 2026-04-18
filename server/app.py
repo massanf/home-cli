@@ -15,6 +15,38 @@ logging.basicConfig(level=logging.INFO)
 
 load_presets()
 
+@app.route('/', methods=['GET'])
+def api_docs():
+    rows = "".join(
+        f"""<tr>
+            <td>{', '.join(sorted(rule.methods - {'HEAD', 'OPTIONS'}))}</td>
+            <td><code>{rule.rule}</code></td>
+        </tr>"""
+        for rule in sorted(app.url_map.iter_rules(), key=lambda r: r.rule)
+        if rule.rule != '/static/<path:filename>'
+    )
+    html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <title>home-server API</title>
+    <style>
+        body {{ font-family: monospace; padding: 1rem; }}
+        table {{ border-collapse: collapse; width: 100%; }}
+        th, td {{ border: 1px solid #ccc; padding: 0.4rem 0.8rem; text-align: left; }}
+        th {{ background: #f0f0f0; }}
+        td:first-child {{ color: steelblue; font-weight: bold; width: 5rem; }}
+    </style>
+</head>
+<body>
+    <h2>home-server API</h2>
+    <table>
+        <tr><th>Method</th><th>Endpoint</th></tr>
+        {rows}
+    </table>
+</body>
+</html>"""
+    return html
+
 @app.route('/switchbot/devices', methods=['GET'])
 def switchbot_devices():
     try:
