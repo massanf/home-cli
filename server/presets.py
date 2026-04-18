@@ -1,7 +1,7 @@
 import json
 
 from .hue import HueCode
-from .state import update_device_state
+from .state import save_snapshot, update_device_state
 from .switchbot import SwitchBotCode
 
 GLOBAL_PRESETS = {}
@@ -58,3 +58,5 @@ def apply_preset(name: str):
         hue_preset_name = preset["hue"]
         HueCode().apply_preset(hue_preset_name)
         update_device_state("hue", "preset", hue_preset_name)
+
+    save_snapshot()
