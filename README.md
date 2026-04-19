@@ -4,7 +4,11 @@ Flask server for controlling smart home devices, exposed to HomeKit via Homebrid
 
 ```mermaid
 graph TD
-    iPhone[iPhone / HomePod]
+    subgraph User [User]
+        iPhone[iPhone 📱]
+        HomePod[HomePod 🔊]
+        Shortcut[Siri Shortcut / dictation]
+    end
 
     subgraph Pi [Raspberry Pi]
         subgraph Docker [Docker Compose]
@@ -29,8 +33,9 @@ graph TD
         FlaskContainer -->|read-only| Secrets
     end
 
-    subgraph Clients
+    subgraph Devices
         SB[SwitchBot Cloud API]
+        IRHub[SwitchBot IR Hub]
         Hue[Hue Bridge]
         Globe[Globe 🌏]
         Edison[Edison Lights 💡]
@@ -39,13 +44,19 @@ graph TD
         HueLights[Hue Lights 💡]
 
         SB --> Globe
-        SB --> Edison
         SB --> Curtain
-        SB --> AC
+        SB --> IRHub
+        IRHub --> Edison
+        IRHub --> AC
         Hue --> HueLights
     end
 
+    Anthropic[Anthropic API]
+
     iPhone -->|HomeKit mDNS| HB
+    HomePod -->|HomeKit mDNS| HB
+    Shortcut -->|HTTP POST + prompt| Flask
+    ServerPkg <-->|HTTPS| Anthropic
     ServerPkg -->|HTTPS| SB
     ServerPkg -->|HTTP| Hue
 ```
@@ -64,7 +75,8 @@ Copy secrets to the project root:
     "token": "YOUR_SWITCHBOT_TOKEN",
     "secret": "YOUR_SWITCHBOT_SECRET",
     "hue_bridge_ip": "YOUR_BRIDGE_IP",
-    "hue_username": "YOUR_HUE_USERNAME"
+    "hue_username": "YOUR_HUE_USERNAME",
+    "anthropic_api_key": "YOUR_ANTHROPIC_API_KEY"
 }
 ```
 
@@ -103,3 +115,4 @@ Open the Home app, tap + > Add Accessory, and enter pin `031-45-154`.
 | POST | `/preset/<name>` | Apply a preset from `config/presets.json` |
 | POST | `/presence/enter` | Triggered by GPS arrival or motion detected — restores state from last snapshot |
 | POST | `/presence/leave` | Triggered by GPS departure — saves snapshot and turns off all lights |
+| POST | `/llm` | Natural language command via `{"prompt": "..."}` — routed through Claude |
