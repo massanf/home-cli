@@ -4,6 +4,7 @@ import logging
 from flask import Flask, Response, jsonify, request, stream_with_context
 
 from .hue import HueCode
+from .llm import run_llm_command
 from .logger import get_logs, subscribe, unsubscribe
 from .presence import on_enter, on_leave
 from .presets import apply_preset, load_presets
@@ -14,6 +15,10 @@ from .switchbot import SwitchBotCode
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
+
+with open('secrets.json') as _f:
+    _secrets = json.load(_f)
+_anthropic_api_key = _secrets.get('anthropic_api_key', '')
 
 load_presets()
 start_scheduler()
@@ -364,6 +369,22 @@ def set_ac_mode():
         return jsonify({"status": "success", "targetHeatingCoolingState": mode})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/llm', methods=['POST'])
+def llm_command():
+    body = request.get_json()
+    prompt = (body or {}).get('prompt', '').strip()
+    if not prompt:
+        return jsonify({"error": "Missing prompt"}), 400
+    if not _anthropic_api_key:
+        return jsonify({"error": "anthropic_api_key not set in secrets.json"}), 500
+    try:
+        response = run_llm_command(prompt, _anthropic_api_key)
+        return jsonify({"response": response})
+    except Exception as e:
+        app.logger.error(f"LLM error: {e}")
+        return jsonify({"error": str(e)}), 500
+
 
 def run(port=5001):
     app.run(host='0.0.0.0', port=port, threaded=True)
