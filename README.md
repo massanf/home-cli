@@ -1,6 +1,12 @@
 # home
 
-Flask server for controlling smart home devices, exposed to HomeKit via Homebridge.
+Flask server for smart home control, exposed to HomeKit via Homebridge, with natural language control via Claude tool calling and cron-based scheduling.
+
+Devices:
+- Edison bulbs
+- Philips Hue lights
+- Curtains
+- Air conditioner
 
 ```mermaid
 graph TD
