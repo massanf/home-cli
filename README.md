@@ -1,5 +1,6 @@
-# home-cli
+### [Important] No one would want to use this code as is. This is very hard-coded to suite just own my needs.
 
+# home-cli
 Flask server for smart home control, exposed to HomeKit via Homebridge, with natural language control via Claude tool calling and cron-based scheduling.
 
 Devices:
