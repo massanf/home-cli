@@ -31,8 +31,17 @@ def _resolve_action(action: str):
     if action.startswith("switchbot:curtain:"):
         state = action.split(":")[-1]
         def _curtain():
-            SwitchBotCode().set_curtain(state == "open")
-            update_device_state("switchbot", "curtain", state)
+            sb = SwitchBotCode()
+            if state == "quietopen":
+                sb.set_curtain_quiet(True)
+                canonical = "open"
+            elif state == "quietclose":
+                sb.set_curtain_quiet(False)
+                canonical = "close"
+            else:
+                sb.set_curtain(state == "open")
+                canonical = state
+            update_device_state("switchbot", "curtain", canonical)
             save_snapshot()
         return _curtain
     if action.startswith("hue:"):
