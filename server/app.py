@@ -16,22 +16,23 @@ from .switchbot import SwitchBotCode
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
-with open('secrets.json') as _f:
+with open("secrets.json") as _f:
     _secrets = json.load(_f)
-_anthropic_api_key = _secrets.get('anthropic_api_key', '')
+_anthropic_api_key = _secrets.get("anthropic_api_key", "")
 
 load_presets()
 start_scheduler()
 
-@app.route('/', methods=['GET'])
+
+@app.route("/", methods=["GET"])
 def api_docs():
     rows = "".join(
         f"""<tr>
-            <td>{', '.join(sorted(rule.methods - {'HEAD', 'OPTIONS'}))}</td>
+            <td>{", ".join(sorted(rule.methods - {"HEAD", "OPTIONS"}))}</td>
             <td><code>{rule.rule}</code></td>
         </tr>"""
         for rule in sorted(app.url_map.iter_rules(), key=lambda r: r.rule)
-        if rule.rule != '/static/<path:filename>'
+        if rule.rule != "/static/<path:filename>"
     )
     html = f"""<!DOCTYPE html>
 <html>
@@ -55,14 +56,16 @@ def api_docs():
 </html>"""
     return html
 
-@app.route('/switchbot/devices', methods=['GET'])
+
+@app.route("/switchbot/devices", methods=["GET"])
 def switchbot_devices():
     try:
         return jsonify(SwitchBotCode().get_devices())
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/logs', methods=['GET'])
+
+@app.route("/logs", methods=["GET"])
 def logs():
     entries = get_logs()
     rows = ""
@@ -120,7 +123,8 @@ def logs():
 </html>"""
     return html
 
-@app.route('/logs/stream', methods=['GET'])
+
+@app.route("/logs/stream", methods=["GET"])
 def logs_stream():
     def generate():
         q = subscribe()
@@ -130,10 +134,11 @@ def logs_stream():
                 yield f"data: {json.dumps(entry)}\n\n"
         finally:
             unsubscribe(q)
-    return Response(stream_with_context(generate()),
-                    mimetype='text/event-stream')
 
-@app.route('/schedules', methods=['GET'])
+    return Response(stream_with_context(generate()), mimetype="text/event-stream")
+
+
+@app.route("/schedules", methods=["GET"])
 def schedules_ui():
     html = """<!DOCTYPE html>
 <html>
@@ -194,26 +199,30 @@ def schedules_ui():
 </html>"""
     return html
 
-@app.route('/schedules/data', methods=['GET'])
+
+@app.route("/schedules/data", methods=["GET"])
 def schedules_data():
     return jsonify(get_schedules())
 
-@app.route('/schedules/data', methods=['PUT'])
+
+@app.route("/schedules/data", methods=["PUT"])
 def schedules_save():
     data = request.get_json()
-    with open('config/schedules.json', 'w') as f:
+    with open("config/schedules.json", "w") as f:
         json.dump(data, f, indent=2)
     reload_schedules()
     return jsonify({"status": "success"})
 
-@app.route('/status', methods=['GET'])
+
+@app.route("/status", methods=["GET"])
 def get_status():
     try:
         return jsonify(load_state())
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/preset/<name>', methods=['POST'])
+
+@app.route("/preset/<name>", methods=["POST"])
 def run_preset(name):
     try:
         apply_preset(name)
@@ -222,7 +231,8 @@ def run_preset(name):
         app.logger.error(f"Error applying preset {name}: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route('/presence/enter', methods=['POST'])
+
+@app.route("/presence/enter", methods=["POST"])
 def presence_enter():
     try:
         on_enter()
@@ -230,7 +240,8 @@ def presence_enter():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/presence/leave', methods=['POST'])
+
+@app.route("/presence/leave", methods=["POST"])
 def presence_leave():
     try:
         on_leave()
@@ -238,52 +249,58 @@ def presence_leave():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/hue/on', methods=['POST'])
+
+@app.route("/hue/on", methods=["POST"])
 def hue_on():
     try:
-        HueCode().apply_preset('on')
+        HueCode().apply_preset("on")
         update_device_state("hue", "preset", "on")
         save_snapshot()
         return jsonify({"status": "success", "action": "hue_on"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/hue/off', methods=['POST'])
+
+@app.route("/hue/off", methods=["POST"])
 def hue_off():
     try:
-        HueCode().apply_preset('off')
+        HueCode().apply_preset("off")
         update_device_state("hue", "preset", "off")
         save_snapshot()
         return jsonify({"status": "success", "action": "hue_off"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/switchbot/globe/<state>', methods=['POST'])
+
+@app.route("/switchbot/globe/<state>", methods=["POST"])
 def switchbot_globe(state):
-    if state not in ['on', 'off']:
+    if state not in ["on", "off"]:
         return jsonify({"error": "Invalid state"}), 400
     try:
-        SwitchBotCode().set_globe(state == 'on')
+        SwitchBotCode().set_globe(state == "on")
         update_device_state("switchbot", "globe", state)
         save_snapshot()
         return jsonify({"status": "success", "device": "globe", "state": state})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/switchbot/curtain/<state>', methods=['POST'])
+
+@app.route("/switchbot/curtain/<state>", methods=["POST"])
 def switchbot_curtain(state):
-    if state not in ['open', 'close', 'quietopen', 'quietclose']:
-        return jsonify({"error": "Invalid state, use open/close/quietopen/quietclose"}), 400  # noqa: E501
+    if state not in ["open", "close", "quietopen", "quietclose"]:
+        return jsonify(
+            {"error": "Invalid state, use open/close/quietopen/quietclose"}
+        ), 400  # noqa: E501
     try:
         sb = SwitchBotCode()
-        if state == 'quietopen':
+        if state == "quietopen":
             sb.set_curtain_quiet(True)
-            canonical = 'open'
-        elif state == 'quietclose':
+            canonical = "open"
+        elif state == "quietclose":
             sb.set_curtain_quiet(False)
-            canonical = 'close'
+            canonical = "close"
         else:
-            sb.set_curtain(state == 'open')
+            sb.set_curtain(state == "open")
             canonical = state
         update_device_state("switchbot", "curtain", canonical)
         save_snapshot()
@@ -291,19 +308,21 @@ def switchbot_curtain(state):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/switchbot/edison/<state>', methods=['POST'])
+
+@app.route("/switchbot/edison/<state>", methods=["POST"])
 def switchbot_edison(state):
-    if state not in ['on', 'off']:
+    if state not in ["on", "off"]:
         return jsonify({"error": "Invalid state"}), 400
     try:
-        SwitchBotCode().set_edison(state == 'on')
+        SwitchBotCode().set_edison(state == "on")
         update_device_state("switchbot", "edison", state)
         save_snapshot()
         return jsonify({"status": "success", "device": "edison", "state": state})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/switchbot/ac/status', methods=['GET'])
+
+@app.route("/switchbot/ac/status", methods=["GET"])
 def get_ac_status():
     try:
         current_ac_state = get_device_state("switchbot", "ac") or {}
@@ -318,19 +337,22 @@ def get_ac_status():
                 hk_state = 1
             else:
                 hk_state = 3
-        return jsonify({
-            "targetHeatingCoolingState": hk_state,
-            "currentHeatingCoolingState": hk_state,
-            "targetTemperature": target_temp,
-            "currentTemperature": target_temp
-        })
+        return jsonify(
+            {
+                "targetHeatingCoolingState": hk_state,
+                "currentHeatingCoolingState": hk_state,
+                "targetTemperature": target_temp,
+                "currentTemperature": target_temp,
+            }
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/switchbot/ac/targetTemperature', methods=['GET'])
+
+@app.route("/switchbot/ac/targetTemperature", methods=["GET"])
 def set_ac_temp():
     try:
-        temp_val = request.args.get('value')
+        temp_val = request.args.get("value")
         if not temp_val:
             return jsonify({"error": "Missing value param"}), 400
         target_temp = int(float(temp_val))
@@ -340,7 +362,7 @@ def set_ac_temp():
                 target_temp,
                 current_ac_state.get("mode", 1),
                 current_ac_state.get("fan", 1),
-                True
+                True,
             )
         new_state = {**current_ac_state, "temp": target_temp}
         update_device_state("switchbot", "ac", new_state)
@@ -348,10 +370,11 @@ def set_ac_temp():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/switchbot/ac/targetHeatingCoolingState', methods=['GET'])
+
+@app.route("/switchbot/ac/targetHeatingCoolingState", methods=["GET"])
 def set_ac_mode():
     try:
-        mode_val = request.args.get('value')
+        mode_val = request.args.get("value")
         if mode_val is None:
             return jsonify({"error": "Missing value param"}), 400
         mode = int(float(mode_val))
@@ -370,10 +393,11 @@ def set_ac_mode():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/llm', methods=['POST'])
+
+@app.route("/llm", methods=["POST"])
 def llm_command():
     body = request.get_json()
-    prompt = (body or {}).get('prompt', '').strip()
+    prompt = (body or {}).get("prompt", "").strip()
     if not prompt:
         return jsonify({"error": "Missing prompt"}), 400
     if not _anthropic_api_key:
@@ -387,4 +411,4 @@ def llm_command():
 
 
 def run(port=5001):
-    app.run(host='0.0.0.0', port=port, threaded=True)
+    app.run(host="0.0.0.0", port=port, threaded=True)

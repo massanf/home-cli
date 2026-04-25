@@ -1,5 +1,5 @@
 from .hue import HueCode
-from .state import load_snapshot, save_snapshot, update_device_state
+from .state import load_snapshot, save_snapshot, set_is_home, update_device_state
 from .switchbot import SwitchBotCode
 
 NON_VOLATILE = {
@@ -7,7 +7,9 @@ NON_VOLATILE = {
     "hue": ["preset"],
 }
 
+
 def on_leave():
+    set_is_home(False)
     save_snapshot()
     print("Presence: left. Turning off lights...")
     sb = SwitchBotCode()
@@ -18,7 +20,9 @@ def on_leave():
     HueCode().apply_preset("off")
     update_device_state("hue", "preset", "off")
 
+
 def on_enter():
+    set_is_home(True)
     print("Presence: entered. Restoring state...")
     snapshot = load_snapshot()
     if not snapshot:

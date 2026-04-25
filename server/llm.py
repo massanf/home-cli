@@ -30,9 +30,7 @@ TOOLS = [
         "description": "Turn the globe light on or off.",
         "input_schema": {
             "type": "object",
-            "properties": {
-                "state": {"type": "string", "enum": ["on", "off"]}
-            },
+            "properties": {"state": {"type": "string", "enum": ["on", "off"]}},
             "required": ["state"],
         },
     },
@@ -41,9 +39,7 @@ TOOLS = [
         "description": "Turn the Edison bulb light on or off.",
         "input_schema": {
             "type": "object",
-            "properties": {
-                "state": {"type": "string", "enum": ["on", "off"]}
-            },
+            "properties": {"state": {"type": "string", "enum": ["on", "off"]}},
             "required": ["state"],
         },
     },
@@ -179,6 +175,7 @@ def _execute_tool(name: str, inputs: dict) -> dict:
 
     if name == "get_status":
         from .state import load_state
+
         return load_state()
 
     return {"error": f"Unknown tool: {name}"}
@@ -211,11 +208,13 @@ def run_llm_command(prompt: str, api_key: str) -> str:
         for block in response.content:
             if block.type == "tool_use":
                 result = _execute_tool(block.name, block.input)
-                tool_results.append({
-                    "type": "tool_result",
-                    "tool_use_id": block.id,
-                    "content": json.dumps(result),
-                })
+                tool_results.append(
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": json.dumps(result),
+                    }
+                )
 
         messages.append({"role": "assistant", "content": response.content})
         messages.append({"role": "user", "content": tool_results})
