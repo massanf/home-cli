@@ -54,18 +54,15 @@ def _resolve_action(action: str):
                 canonical = "close"
             else:
                 canonical = state
-            if get_is_home():
-                sb = SwitchBotCode()
-                if state == "quietopen":
-                    sb.set_curtain_quiet(True)
-                elif state == "quietclose":
-                    sb.set_curtain_quiet(False)
-                else:
-                    sb.set_curtain(state == "open")
-                update_device_state("switchbot", "curtain", canonical)
-                save_snapshot()
+            sb = SwitchBotCode()
+            if state == "quietopen":
+                sb.set_curtain_quiet(True)
+            elif state == "quietclose":
+                sb.set_curtain_quiet(False)
             else:
-                update_snapshot_device("switchbot", "curtain", canonical)
+                sb.set_curtain(state == "open")
+            update_device_state("switchbot", "curtain", canonical)
+            save_snapshot()
 
         return _curtain
     if action.startswith("hue:"):

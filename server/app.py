@@ -11,6 +11,7 @@ from .presets import apply_preset, load_presets
 from .scheduler import get_schedules, reload_schedules
 from .scheduler import start as start_scheduler
 from .state import get_device_state, load_state, save_snapshot, update_device_state
+from .sun import start as start_sun
 from .switchbot import SwitchBotCode
 
 app = Flask(__name__)
@@ -22,6 +23,7 @@ _anthropic_api_key = _secrets.get("anthropic_api_key", "")
 
 load_presets()
 start_scheduler()
+start_sun()
 
 
 @app.route("/", methods=["GET"])

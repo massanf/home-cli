@@ -44,9 +44,8 @@ def apply_preset(name: str, dry_run: bool = False):
             sb = SwitchBotCode()
         if sb_config.get("curtain"):
             state = sb_config["curtain"]
-            if not dry_run:
-                sb.set_curtain(state == "open")
-            _write("switchbot", "curtain", state)
+            SwitchBotCode().set_curtain(state == "open")
+            update_device_state("switchbot", "curtain", state)
         if sb_config.get("globe"):
             state = sb_config["globe"]
             if not dry_run:
