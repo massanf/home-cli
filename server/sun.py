@@ -34,15 +34,19 @@ def _load_sun_schedules() -> list:
 
 def schedule_sun_jobs():
     location = _load_location()
-    today = datetime.now(timezone.utc).date()
-    s = astral_sun(location.observer, date=today, tzinfo=location.timezone)
     now = datetime.now(timezone.utc)
 
     for job in _load_sun_schedules():
-        event_time = s[job["event"]]
-        fire_time = event_time + timedelta(minutes=job.get("offset_minutes", 0))
-        if fire_time <= now:
-            print(f"Sun-schedule '{job['id']}' already passed today, skipping.")
+        for days_ahead in (0, 1):
+            date = (now + timedelta(days=days_ahead)).date()
+            s = astral_sun(location.observer, date=date, tzinfo=location.timezone)
+            fire_time = s[job["event"]] + timedelta(
+                minutes=job.get("offset_minutes", 0)
+            )
+            if fire_time > now:
+                break
+        else:
+            print(f"Sun-schedule '{job['id']}': could not find a future fire time.")
             continue
         scheduler.add_job(
             _resolve_action(job["action"]),
