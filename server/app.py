@@ -8,7 +8,7 @@ from .llm import run_llm_command
 from .logger import get_logs, subscribe, unsubscribe
 from .presence import on_enter, on_leave
 from .presets import apply_preset, load_presets
-from .scheduler import get_schedules, reload_schedules
+from .scheduler import get_schedules, reload_schedules, scheduler
 from .scheduler import start as start_scheduler
 from .state import get_device_state, load_state, save_snapshot, update_device_state
 from .sun import start as start_sun
@@ -200,6 +200,15 @@ def schedules_ui():
 </body>
 </html>"""
     return html
+
+
+@app.route("/schedules/jobs", methods=["GET"])
+def schedules_jobs():
+    jobs = [
+        {"id": job.id, "next_run_time": str(job.next_run_time), "trigger": str(job.trigger)}
+        for job in scheduler.get_jobs()
+    ]
+    return jsonify(jobs)
 
 
 @app.route("/schedules/data", methods=["GET"])
