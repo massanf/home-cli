@@ -205,7 +205,11 @@ def schedules_ui():
 @app.route("/schedules/jobs", methods=["GET"])
 def schedules_jobs():
     jobs = [
-        {"id": job.id, "next_run_time": str(job.next_run_time), "trigger": str(job.trigger)}
+        {
+            "id": job.id,
+            "next_run_time": str(job.next_run_time),
+            "trigger": str(job.trigger),
+        }
         for job in scheduler.get_jobs()
     ]
     return jsonify(jobs)

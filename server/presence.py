@@ -3,7 +3,7 @@ from .state import load_snapshot, save_snapshot, set_is_home, update_device_stat
 from .switchbot import SwitchBotCode
 
 NON_VOLATILE = {
-    "switchbot": ["globe", "edison"],
+    "switchbot": ["globe", "edison", "ac"],
     "hue": ["preset"],
 }
 
@@ -19,6 +19,8 @@ def on_leave():
     update_device_state("switchbot", "edison", "off")
     HueCode().apply_preset("off")
     update_device_state("hue", "preset", "off")
+    sb.set_ac(25, 1, 1, False)
+    update_device_state("switchbot", "ac", {"on": False})
 
 
 def on_enter():
@@ -37,6 +39,16 @@ def on_enter():
             sb.set_globe(state == "on")
         elif device == "edison":
             sb.set_edison(state == "on")
+        elif device == "ac":
+            if isinstance(state, dict) and state.get("on", False):
+                sb.set_ac(
+                    state.get("temp", 25),
+                    state.get("mode", 1),
+                    state.get("fan", 1),
+                    True,
+                )
+            else:
+                sb.set_ac(25, 1, 1, False)
         update_device_state("switchbot", device, state)
     for device in NON_VOLATILE.get("hue", []):
         state = snapshot.get("hue", {}).get(device)
